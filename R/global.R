@@ -1,12 +1,19 @@
 ## Known issues
 # 2015 patch is not applied. LE, LH will lost some good values.
 
+timename <- c('TIMESTAMP_START','TIMESTAMP_END')
+
 # except date, all variables were double
+# Update 20191216 (FULLSET used, rename variabls)
+# SW_OUT_F: SW_OUT
+# LW_OUT_F: LW_OUT
+# non_QC variables
+# "SW_OUT_QC", "LW_OUT_QC", "NETRAD_QC", "USTAR_QC"
 vars_val <- c(
     "SW_IN_F", # incoming Shortwave Radiation  | W/m2
-    "SW_OUT_F", # outgoing Shortwave Radiation  | W/m2
+    "SW_OUT", # outgoing Shortwave Radiation  | W/m2
     "LW_IN_F", # incoming Longwave Radiation   | W/m2
-    "LW_OUT_F", # outgoing Longwave Radiation   | W/m2
+    "LW_OUT", # outgoing Longwave Radiation   | W/m2
     "NETRAD", # Rn, NET Radiation             | W/m2
     "LE_F_MDS", # Latent heat flux              | W/m2
     "LE_CORR", # LE_F_MDS_QC quality flag for LE_F_MDS, LE_CORR
@@ -33,7 +40,6 @@ vars_val <- c(
     "GPP_DT_VUT_REF", # daytime partitioning Gross Primary Production,      | umol CO2/mol
     "GPP_NT_VUT_REF" # nighttime partitioning Gross Primary Production,    | umol CO2/mol
 )
-
 
 ################################################################################
 vars_QC <- paste0(vars_val, "_QC")

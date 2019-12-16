@@ -4,7 +4,7 @@ Version: 0.0.0.9000
 Authors@R: c(
     person("Dongdong", "Kong", role = c("aut", "cre"), email = "kongdd.sysu@gmail.com"))
 Description: What the package does (one paragraph).
-License: What license it uses
+License: GPL-3
 LinkingTo: 
     Rcpp
 Imports: 

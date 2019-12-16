@@ -14,12 +14,12 @@
 #' mean_perc(x)
 #' @export
 sum_perc <- function(x, perc = 0.8) {
-    .Call('_rfluxnet_sum_perc', PACKAGE = 'rfluxnet', x, perc)
+    .Call(`_rfluxnet_sum_perc`, x, perc)
 }
 
 #' @rdname sum_perc
 #' @export
 mean_perc <- function(x, perc = 0.8) {
-    .Call('_rfluxnet_mean_perc', PACKAGE = 'rfluxnet', x, perc)
+    .Call(`_rfluxnet_mean_perc`, x, perc)
 }
 

@@ -15,9 +15,6 @@ tidy_hourly <- function(dt) {
     x_qc <- dt[, vars_QC, with = F]
     x_val[x_qc > 2] <- NA
 
-    
-browser()
-
     # manipulate NA values
     for (i in seq_along(vars_val)) {
         var <- vars_val[i]
