@@ -1,3 +1,8 @@
+#' @note 
+#' # 2020-01-04
+#' Note that all variables except dhour, are averaged or sumed (for precipitation) 
+#' in daily-scale other than daytime.
+#' 
 #' @importFrom lubridate fast_strptime date
 #' @export
 tidy_daytime <- function(dt, minValidPerc = 0.8) {

@@ -70,7 +70,7 @@ var_no_negative <- c(
 
 # 1.1 https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MCD12Q1
 IGBPnames_006 <- c(
-    "ENF", "EBF", "DNF", "DBF", "MF",
+    "ENF", "EBF", "DNF", "DBF", "MF", # 5 types
     "CSH", "OSH", "WSA", "SAV", "GRA", "WET",
     "CRO", "URB", "CNV", "SNOW", "BSV", "water"
 ) # 1:17
