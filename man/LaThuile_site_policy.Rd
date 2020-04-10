@@ -4,7 +4,8 @@
 \name{LaThuile_site_policy}
 \alias{LaThuile_site_policy}
 \title{DATASET_TITLE}
-\format{A data frame with 253 rows and 18 variables:
+\format{
+A data frame with 253 rows and 18 variables:
 \describe{
   \item{`V1`}{character COLUMN_DESCRIPTION}
   \item{`V2`}{character COLUMN_DESCRIPTION}
@@ -24,7 +25,8 @@
   \item{`V16`}{character COLUMN_DESCRIPTION}
   \item{`V17`}{character COLUMN_DESCRIPTION}
   \item{`V18`}{character COLUMN_DESCRIPTION} 
-}}
+}
+}
 \source{
 <http://somewhere.important.com/>
 }

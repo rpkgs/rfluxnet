@@ -1,8 +1,8 @@
-#' @note 
+#' @note
 #' # 2020-01-04
-#' Note that all variables except dhour, are averaged or sumed (for precipitation) 
+#' Note that all variables except dhour, are averaged or sumed (for precipitation)
 #' in daily-scale other than daytime.
-#' 
+#'
 #' @importFrom lubridate fast_strptime date
 #' @export
 tidy_daytime <- function(dt, minValidPerc = 0.8) {
@@ -12,8 +12,6 @@ tidy_daytime <- function(dt, minValidPerc = 0.8) {
     time_end   <- as.character(dt$TIMESTAMP_END) %>% fast_strptime(fmt_date)
 
     deltaT <- unique(difftime(time_end, time_begin, units = "hours")) # for HH dt = 1/2, HR dt = 1
-    # print(deltaT)
-
     date <- date(time_begin)
     # date_end   <- date(time_end)
     time_begin %<>% format("%H:%M") # %S
@@ -23,6 +21,7 @@ tidy_daytime <- function(dt, minValidPerc = 0.8) {
     dt[, (vars_date) := list(date, time_begin, time_end)]
     dt[, c("TIMESTAMP_START", "TIMESTAMP_END") := NULL]
 
+    # dt[, .(prcp = P_F, Tair_day=TA_F, SW_IN=SW_IN_F)],
     ## 2. vars can't have negative values, have been manipulated in get_daily
     ## 3. get daily prcp
     # prcp <- dt[, .(P_F = sum(P_F, na.rm = T)), by = date] #mm into mm/day
@@ -53,16 +52,21 @@ tidy_daytime <- function(dt, minValidPerc = 0.8) {
 
     # merge precipitation into data.table and rename colnames
     x_daily %<>% merge(prcp, by = "date")
-    setnames(
-        x_daily, names(x_daily),
-        gsub("_F$|_F_MDS$|_F_MDS_1|_VUT_REF", "", names(x_daily)) %>%
-            gsub("NETRAD", "Rn", .)
-    ) # rename Net Radiation
-    setcolorder(x_daily, c("date", "dhour", sort(names(x_daily[, -c("date", "dhour")]))))
+    oldnames <- colnames(x_daily) %>% setdiff(c("date", "dhour"))
+    newnames <- gsub("_F$|_F_MDS$|_F_MDS_1|_VUT_REF", "",oldnames) %>%
+        gsub("NETRAD", "Rn", .)
+
+    d_qc = dt %>% plyr::mutate(Tair_day = TA_F) %>%
+        .[, lapply(.SD, function(x) sum(!is.na(x))/length(x) ), .(date), .SDcols = oldnames]
+
+    setnames(x_daily, oldnames, newnames)
+    setnames(d_qc, oldnames, paste0("QC_", newnames))
+    x_daily2 <- merge(x_daily, d_qc)
+    # setcolorder(x_daily, c("date", "dhour", sort(names(x_daily[, -c("date", "dhour")]))))
 
     # 6 check the date continuity of x_daily, If not continue, then fill NAN
     #   values in it.
-    date <- x_daily$date
+    date <- x_daily2$date
     vals <- diff(date)
 
     if (length(unique(vals)) != 1) {
@@ -70,18 +74,18 @@ tidy_daytime <- function(dt, minValidPerc = 0.8) {
         print(rle(as.numeric(vals)))
 
         dateBegin <- date[1]
-        dateEnd <- date[length(date)]
+        dateEnd   <- date[length(date)]
         dates_new <- seq.Date(dateBegin, dateEnd, by = "day")
         days <- difftime(dateEnd, dateBegin, "days") + 1
-        cols <- ncol(x_daily)
+        cols <- ncol(x_daily2)
         tmp <- matrix(NA, nrow = days, ncol = cols) %>%
-            set_colnames(names(x_daily))
-        tmp[match(date, dates_new), ] <- as.matrix(x_daily)
+            set_colnames(names(x_daily2))
+        tmp[match(date, dates_new), ] <- as.matrix(x_daily2)
         # tmp[, "date"] <- dates_new
-        x_daily <- data.table(tmp)
-        x_daily$date <- dates_new
+        x_daily2 <- data.table(tmp)
+        x_daily2$date <- dates_new
         # y$date <- dates
         # print(unique(diff(as.Date(y$date))))
     }
-    return(x_daily)
+    return(x_daily2)
 }

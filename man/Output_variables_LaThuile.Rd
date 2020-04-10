@@ -4,7 +4,8 @@
 \name{Output_variables_LaThuile}
 \alias{Output_variables_LaThuile}
 \title{DATASET_TITLE}
-\format{A data frame with 29 rows and 15 variables:
+\format{
+A data frame with 29 rows and 15 variables:
 \describe{
   \item{`Fluxnet_variable`}{character COLUMN_DESCRIPTION}
   \item{`Fluxnet_unit`}{character COLUMN_DESCRIPTION}
@@ -21,7 +22,8 @@
   \item{`Category`}{character COLUMN_DESCRIPTION}
   \item{`ERAinterim_variable`}{logical COLUMN_DESCRIPTION}
   \item{`Aggregate_method`}{character COLUMN_DESCRIPTION} 
-}}
+}
+}
 \source{
 <http://somewhere.important.com/>
 }

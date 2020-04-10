@@ -4,7 +4,8 @@
 \name{site_metadata}
 \alias{site_metadata}
 \title{DATASET_TITLE}
-\format{A data frame with 856 rows and 22 variables:
+\format{
+A data frame with 856 rows and 22 variables:
 \describe{
   \item{`SiteCode`}{character COLUMN_DESCRIPTION}
   \item{`Exclude`}{character COLUMN_DESCRIPTION}
@@ -28,7 +29,8 @@
   \item{`Disturbance`}{character COLUMN_DESCRIPTION}
   \item{`CropDescription`}{character COLUMN_DESCRIPTION}
   \item{`Irrigation`}{character COLUMN_DESCRIPTION} 
-}}
+}
+}
 \source{
 <http://somewhere.important.com/>
 }

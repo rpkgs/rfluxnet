@@ -3,3 +3,5 @@
 ^INPUT$
 ^OUTPUT$
 ^LICENSE\.md$
+^INPUT/FULLSET_tier1_patch_applied$
+^OUTPUT/temp$

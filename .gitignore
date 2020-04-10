@@ -6,3 +6,4 @@ R/temp
 INPUT/
 OUTPUT/
 *.csv
+*.rda

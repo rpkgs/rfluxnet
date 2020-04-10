@@ -1,3 +1,4 @@
+# 给hourly和half-hourly数据打补丁
 source("test/main_pkgs.R")
 indir       <- "G:/Github/data/flux/fluxnet212_raw/raw/FULLSET/tier1" %>% path.mnt()
 indir.patch <- "G:/Github/data/flux/fluxnet212_raw/raw/FULLSET/FLUXNET2015_PATCH1/" %>% path.mnt()
@@ -39,5 +40,3 @@ lst <- foreach(site_code = site_codes, infile = files, file.patch = files.patch[
 # those sites have long time in patch
 sites_longer = c("AU-TTE", "AU-Wom", "CZ-BK1", "CZ-BK2",
                  "FR-Gri", "NL-Loo", "US-Prr", "ZA-Kru")
-# 统计某文件夹下文件的个数
-# ls -l |grep "^-"|wc -l
