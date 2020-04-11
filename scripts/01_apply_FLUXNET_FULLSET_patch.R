@@ -1,5 +1,7 @@
 # 给hourly和half-hourly数据打补丁
-source("test/main_pkgs.R")
+source("scripts/main_pkgs.R")
+
+# tier2 has been removed in FULLSET_tier1
 indir       <- "G:/Github/data/flux/fluxnet212_raw/raw/FULLSET/tier1" %>% path.mnt()
 indir.patch <- "G:/Github/data/flux/fluxnet212_raw/raw/FULLSET/FLUXNET2015_PATCH1/" %>% path.mnt()
 
@@ -33,10 +35,11 @@ lst <- foreach(site_code = site_codes, infile = files, file.patch = files.patch[
         for (varname in variable.names) {
             d[[varname]] <- d_patch[[varname]]
         }
-        fwrite(d, outfile)
+        # fwrite(d, outfile)
     }
 } %>% rm_empty()
 
+# after applied patch, tier2 has been removed. ---------------------------------
 # those sites have long time in patch
 sites_longer = c("AU-TTE", "AU-Wom", "CZ-BK1", "CZ-BK2",
                  "FR-Gri", "NL-Loo", "US-Prr", "ZA-Kru")

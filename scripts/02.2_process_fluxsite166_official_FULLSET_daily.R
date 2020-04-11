@@ -1,4 +1,4 @@
-source("test/main_pkgs.R")
+source('scripts/main_pkgs.R')
 
 # FLUNET daily observations are
 # If the percentage of daily good quality gap-filled data is less than `perc_valid`,

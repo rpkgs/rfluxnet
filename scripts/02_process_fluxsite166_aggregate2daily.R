@@ -1,4 +1,5 @@
-source('test/main_pkgs.R')
+source("scripts/main_pkgs.R")
+
 ################################################################################
 
 files <- dir("INPUT/FULLSET_tier1_patch_applied/", recursive = T, pattern = "*.FULLSET_[HR|HH]_*.", full.names = T)
