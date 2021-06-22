@@ -1,7 +1,7 @@
 # source('scripts/main_pkgs.R')
 
 library(data.table)
-library(plyr)
+# library(plyr)
 # library(lubridate)
 # library(tidyverse)
 library(magrittr)
@@ -19,9 +19,9 @@ library(ncdf4)
 library(xml2)
 library(rvest)
 library(devtools)
-library(githubinstall)
 
 library(foreach)
 library(iterators)
 
 library(purrr)
+library(glue)

@@ -46,15 +46,25 @@ tidy_daily <- function(dt, lat, minValidPerc = 0.8){
 
     x_val <- dt[, vars_val, with = F]
     x_qc  <- dt[, vars_QC , with = F]
-    x_val[x_qc  < minValidPerc] <- NA
+    x2 = x_val
+    x2[x_qc  < minValidPerc] <- NA
+    # x_val[x_qc  < minValidPerc] <- NA
 
     I <- match(newdate, date)
     date <- newdate
     # rename
     setnames(x_val, gsub("_F$|_F_MDS$|_F_MDS_1|_VUT_REF", "", names(x_val)) %>%
                  gsub("NETRAD", "Rn", .))
-    dnew <- cbind(date, year, month, growing,  x_val[I, ])
-    dnew
+    setnames(x_qc, gsub("_F$|_F_MDS$|_F_MDS_1|_VUT_REF", "", names(x_val)) %>%
+                 gsub("NETRAD", "Rn", .) %>%
+                 paste0("_QC"))
+
+    d_meta = data.table(date, year, YYYY = year(date), month, growing)
+    d    <- cbind(d_meta, x2[I, ])
+    d0   <- cbind(d_meta, x_val[I, ], x_qc[I, ])
+    # browser()
+    # dnew
+    list(data = d, data0 = d0)
     # 3. remove all na variables in tail and head
     # flag <- rowSums(is.na(as.matrix(x_val))) < ncol(x_val)
     #
