@@ -28,7 +28,7 @@ A data frame with 856 rows and 22 variables:
   \item{`SoilType`}{character COLUMN_DESCRIPTION}
   \item{`Disturbance`}{character COLUMN_DESCRIPTION}
   \item{`CropDescription`}{character COLUMN_DESCRIPTION}
-  \item{`Irrigation`}{character COLUMN_DESCRIPTION} 
+  \item{`Irrigation`}{character COLUMN_DESCRIPTION}
 }
 }
 \source{

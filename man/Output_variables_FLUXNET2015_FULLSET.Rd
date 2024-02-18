@@ -21,7 +21,7 @@ A data frame with 40 rows and 15 variables:
   \item{`Preferred_eval`}{logical COLUMN_DESCRIPTION}
   \item{`Category`}{character COLUMN_DESCRIPTION}
   \item{`ERAinterim_variable`}{character COLUMN_DESCRIPTION}
-  \item{`Aggregate_method`}{character COLUMN_DESCRIPTION} 
+  \item{`Aggregate_method`}{character COLUMN_DESCRIPTION}
 }
 }
 \source{

@@ -19,10 +19,10 @@
 #'   \item{`V15`}{character COLUMN_DESCRIPTION}
 #'   \item{`V16`}{character COLUMN_DESCRIPTION}
 #'   \item{`V17`}{character COLUMN_DESCRIPTION}
-#'   \item{`V18`}{character COLUMN_DESCRIPTION} 
-#'}
+#'   \item{`V18`}{character COLUMN_DESCRIPTION}
+#' }
 #' @source <http://somewhere.important.com/>
-#' 
+#'
 #' @example man/example/ex-plot_nc.R
 "LaThuile_site_policy"
 
@@ -44,8 +44,8 @@
 #'   \item{`Preferred_eval`}{logical COLUMN_DESCRIPTION}
 #'   \item{`Category`}{character COLUMN_DESCRIPTION}
 #'   \item{`ERAinterim_variable`}{character COLUMN_DESCRIPTION}
-#'   \item{`Aggregate_method`}{character COLUMN_DESCRIPTION} 
-#'}
+#'   \item{`Aggregate_method`}{character COLUMN_DESCRIPTION}
+#' }
 #' @source <http://somewhere.important.com/>
 "Output_variables_FLUXNET2015_FULLSET"
 
@@ -68,8 +68,8 @@
 #'   \item{`Preferred_eval`}{logical COLUMN_DESCRIPTION}
 #'   \item{`Category`}{character COLUMN_DESCRIPTION}
 #'   \item{`ERAinterim_variable`}{character COLUMN_DESCRIPTION}
-#'   \item{`Aggregate_method`}{character COLUMN_DESCRIPTION} 
-#'}
+#'   \item{`Aggregate_method`}{character COLUMN_DESCRIPTION}
+#' }
 #' @source <http://somewhere.important.com/>
 "Output_variables_FLUXNET2015_SUBSET"
 
@@ -91,8 +91,8 @@
 #'   \item{`Preferred_eval`}{logical COLUMN_DESCRIPTION}
 #'   \item{`Category`}{character COLUMN_DESCRIPTION}
 #'   \item{`ERAinterim_variable`}{logical COLUMN_DESCRIPTION}
-#'   \item{`Aggregate_method`}{character COLUMN_DESCRIPTION} 
-#'}
+#'   \item{`Aggregate_method`}{character COLUMN_DESCRIPTION}
+#' }
 #' @source <http://somewhere.important.com/>
 "Output_variables_LaThuile"
 
@@ -114,8 +114,8 @@
 #'   \item{`Preferred_eval`}{logical COLUMN_DESCRIPTION}
 #'   \item{`Category`}{character COLUMN_DESCRIPTION}
 #'   \item{`ERAinterim_variable`}{character COLUMN_DESCRIPTION}
-#'   \item{`Aggregate_method`}{character COLUMN_DESCRIPTION} 
-#'}
+#'   \item{`Aggregate_method`}{character COLUMN_DESCRIPTION}
+#' }
 #' @source <http://somewhere.important.com/>
 "Output_variables_OzFlux"
 
@@ -144,7 +144,7 @@
 #'   \item{`SoilType`}{character COLUMN_DESCRIPTION}
 #'   \item{`Disturbance`}{character COLUMN_DESCRIPTION}
 #'   \item{`CropDescription`}{character COLUMN_DESCRIPTION}
-#'   \item{`Irrigation`}{character COLUMN_DESCRIPTION} 
-#'}
+#'   \item{`Irrigation`}{character COLUMN_DESCRIPTION}
+#' }
 #' @source <http://somewhere.important.com/>
 "site_metadata"

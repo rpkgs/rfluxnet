@@ -24,7 +24,7 @@ A data frame with 253 rows and 18 variables:
   \item{`V15`}{character COLUMN_DESCRIPTION}
   \item{`V16`}{character COLUMN_DESCRIPTION}
   \item{`V17`}{character COLUMN_DESCRIPTION}
-  \item{`V18`}{character COLUMN_DESCRIPTION} 
+  \item{`V18`}{character COLUMN_DESCRIPTION}
 }
 }
 \source{

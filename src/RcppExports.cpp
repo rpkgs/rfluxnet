@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // sum_perc
 double sum_perc(NumericVector x, double perc);
 RcppExport SEXP _rfluxnet_sum_perc(SEXP xSEXP, SEXP percSEXP) {

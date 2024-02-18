@@ -22,6 +22,6 @@ sum_perc
 `mean_perc` doesn't include the number of invalid values.
 }
 \examples{
-x = c(1:8, NA, NA)
+x <- c(1:8, NA, NA)
 mean_perc(x)
 }
