@@ -8,7 +8,11 @@ License: GPL-3
 LinkingTo: 
     Rcpp
 Imports: 
-    Rcpp
+    Rcpp, 
+    fasttime, 
+    lubridate, 
+    data.table, 
+    magrittr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
