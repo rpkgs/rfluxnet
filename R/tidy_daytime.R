@@ -13,7 +13,6 @@ tidy_daytime <- function(dt, minValidPerc = 0.8) {
 
   deltaT <- unique(difftime(time_end, time_begin, units = "hours")) # for HH dt = 1/2, HR dt = 1
   date <- date(time_begin)
-  # date_end   <- date(time_end)
   time_begin %<>% format("%H:%M") # %S
   time_end %<>% format("%H:%M")
 
@@ -26,26 +25,25 @@ tidy_daytime <- function(dt, minValidPerc = 0.8) {
   ## 3. get daily prcp
   # prcp <- dt[, .(P_F = sum(P_F, na.rm = T)), by = date] #mm into mm/day
   prcp <- dt[, .(P_F = sum_perc(P_F, minValidPerc)), by = date]
+
   ## 4. day light hours according to shortwave incoming radiation > 5/W/m2
-  dt_dlight <- dt[SW_IN_F >= 5, ] # modified 29112017
+  .dat <- dt[SW_IN_F >= 5, ] # modified 29112017
+  dhour <- .dat[, .(dhour = .N * deltaT, Tair_day = mean(TA_F, na.rm = TRUE)), by = date]
+  # dhour <- dt_dlight[, .N, by = date]$N * deltaT  #day light hours
 
-  # dhour     <- dt_dlight[, .N, by = date]$N * deltaT  #day light hours
-  dhour <- dt_dlight[, .(dhour = .N * deltaT, Tair_day = mean(TA_F, na.rm = TRUE)), by = date]
-
-  ## changed to daytime again
-  dt_dlight <- dt
+  ## changed to whole time
   # mean of all the variables except precipitation, and date variables
-  x_daily <- dt_dlight[, lapply(.SD, mean_perc, minValidPerc),
+  x_daily <- dt[, lapply(.SD, mean_perc, minValidPerc),
     by = date,
-    .SDcols = setdiff(names(dt_dlight), c("P_F", vars_date))
+    .SDcols = setdiff(names(dt), c("P_F", vars_date))
   ]
+
   x_daily[, ":="(VPD_F = VPD_F * 0.1)] # hPa to kPa
   x_daily <- merge(dhour, x_daily, by = "date", all = T) # add dhour parameter
 
   # 5. Convert Carbon flux units (from umol/m2/s to g/m2/d),
   #    Only for Var = NEE, GPP, RE
-  SDcols <- names(x_daily) %>% .[grep("GPP_|NEE_|RECO_", .)]
-
+  SDcols <- names(x_daily) %>% .[grep("GPP_|NEE_|RECO_", .)] 
   x_daily[, (SDcols) := lapply(.SD, function(x) x <- x * 1.0368),
     .SDcols = SDcols
   ] # 12*86400/10^6 = 1.0368

@@ -1,0 +1,88 @@
+> 5个站点没有LAI数据，
+> 通过`lai&GPP` R2最大，将其位置调整到相邻网格
+
+> 2024-03-22, Dongdong Kong
+<https://code.earthengine.google.com/d2c78bba5034f692f114ee64b0fb05c7>
+
+
+```{r}
+library(sf)
+library(sf2)
+
+st2 = read_sf("./data-raw/st212_adjust_5points_loc/shp/flux_st5_adjusted.shp") |> 
+  st_cast("POINT") |> 
+  as.data.table()
+st2[, group := as.character(1:.N), .(site)]
+
+# 来源于下面的评估结果
+info = tribble(
+  ~site, ~group, 
+  "DE-Akm", "1",
+  "DE-RuS", "3",
+  "IT-Ro1", "2", 
+  "US-ORv", "1",
+  "US-WPT", "2"
+)
+st2 = merge(info, st2) |> cbind("source"="fluxnet2015")
+```
+
+
+```{r}
+library(tidyr)
+
+sites_bad <- c("US-WPT", "US-ORv", "DE-Akm", "DE-RuS", "IT-Ro1")
+
+df <- df_d8[site %in% sites_bad, .(site, date, NEE, GPP_NT, GPP_DT)]
+
+df_lai <- fread("./temp/st5_fix_LAI_2000-2023_MODIS_061_MOD15A2H.csv") |>
+  separate(site2, into = c("site", "group"), sep = "_") |>
+  data.table() |>
+  mutate(date = as_date(date)) %>%
+  # add_dn() |>
+  # mutate(date2 = date_ydn(year, d8)) %>%
+  .[, .(site, group, date, FparExtra_QC, LAI = Lai_500m)]
+# df[LAI == 25]
+
+d = merge(df_lai, df)
+info = d[, GOF(LAI, GPP_NT), .(site, group)]
+info[, .SD[which.max(R2), .(group, R, R2, pvalue)], .(site)]
+
+# pivot_wider(df, names_from = site2, names_sep = "_")
+```
+
+# 湿地`LAI&NEE`为何是负相关？
+
+```{r}
+# 最终挑选的站点
+
+merge(df_lai, info) |> select(-group) |> unique()
+
+#   site   group      R    R2   pvalue
+#   <chr>  <chr>  <dbl> <dbl>    <dbl>
+# 1 DE-Akm 1     -0.505 0.255 2.65e-19
+# 2 DE-RuS 3     -0.494 0.244 9.86e-13
+# 3 IT-Ro1 2     -0.629 0.396 4.77e-46
+# 4 US-ORv 1     -0.783 0.613 1.27e-10
+# 5 US-WPT 2     -0.681 0.463 4.08e-20
+```
+
+> 重新制作一个st_flux212
+
+> `st_plumber170`: 可补充49个站点
+
+```{r}
+st = rbind(
+  st_plumber170[site %!in% st_flux212$site, .(site, lon, lat, source = "plumber2")],
+  st_flux212[, .(site, lon, lat, source = "fluxnet2015")]
+)
+# IT-Ro1: both
+
+st_flux261 = rbind(st[site %!in% sites_bad, ], select(st2, -group)) |> 
+  arrange(site)
+
+st[site %in% sites_bad, ]
+st_flux261[site %in% sites_bad, ]
+
+usethis::use_data(st_flux261, overwrite=TRUE)
+# 5个站点的位置需要调整
+```

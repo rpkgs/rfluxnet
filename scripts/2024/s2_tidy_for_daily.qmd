@@ -1,0 +1,83 @@
+```{r}
+library(Ipaper)
+library(stringr)
+library(lubridate)
+
+fs = dir2("./OUTPUT/FLUXNET212_hour_tier2/")
+sites = str_extract(basename(fs), "(?<=FLX_).*(?=_FLUX)")
+names(fs) = sites
+
+f = fs[1]
+d = fread(f) |> mutate(date = date + dhours(8))
+```
+
+## Time: LOCAL or UTC?
+
+> confirmed, all time are `local`
+```{r, eval=FALSE}
+lst = foreach(f = fs, i = icount()) %do% {
+  runningId(i)
+  d <- fread(f) |> mutate(date = date + dhours(8))
+  info <- d[, .(date, Rs)] %>%
+    .[, .(Rs = mean(Rs, na.rm = TRUE)), .(hour = hour(date))]
+  info[which.max(Rs), hour]
+}
+```
+
+## hourly to daily
+
+```{r}
+minValidPerc = 0.8
+
+outdir = "./OUTPUT/FLUXNET212_day_tier2"
+version = glue("v20240322 ({minValidPerc*100}%)")
+
+lst = foreach(f = fs, i = icount()) %do% {
+  runningId(i)
+  name = basename(f) %>% gsub("_HH|_HR", "_DD", .)
+  fout = glue("{outdir}/{name}")
+  
+  if (!file.exists(fout)) {
+    d <- fread(f) |> mutate(date = date + dhours(8))
+
+    r = d[, map(.SD, mean_perc, minValidPerc), .(date = date(date))] |> 
+      mutate(prcp = prcp * 24, VPD = VPD/10, dhour = NIGHT * 24, .after = "NIGHT")
+    fwrite(r, fout)
+    r
+  }
+}
+
+df_out = map(lst, \(d) select(d, -starts_with(c("TS_F_", "SWC_F_")))) |> 
+  melt_list("site")
+fout = glue("./OUTPUT/fluxsites212_FULLSET_D1_{version}.csv")
+fwrite(df_out, fout)
+```
+
+## daily to 8-day
+
+```{r}
+date_yj <- function(year, doy) {
+  make_date(year) + doy - 1
+}
+
+date_ydn <- function(year, dn, delta = 8) {
+  doy = (dn - 1) * delta + 1
+  make_date(year) + doy - 1
+}
+```
+
+```{r}
+df_out %<>% add_dn(days = 8)
+
+vars_comm <- c("site", "date", "YYYY", "year", "month", "doy", "d8")
+vars_aggr <- colnames(df_out) %>% setdiff(vars_comm)
+
+df_d8 <- df_out[, lapply(.SD, mean, na.rm = F), 
+  .(site, year, d8), .SDcols = vars_aggr] |> 
+  mutate(date = date_ydn(year, d8, 8), .after = "d8") %>%
+  select(-year, -d8)
+
+fout = glue("./OUTPUT/fluxsites212_FULLSET_D8_{version}.csv")
+fwrite(df_d8, fout)
+```
+
