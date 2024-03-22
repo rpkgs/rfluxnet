@@ -8,6 +8,7 @@
 ```{r}
 library(sf)
 library(sf2)
+library(tidyr)
 
 st2 = read_sf("./data-raw/st212_adjust_5points_loc/shp/flux_st5_adjusted.shp") |> 
   st_cast("POINT") |> 
@@ -28,33 +29,30 @@ st2 = merge(info, st2) |> cbind("source"="fluxnet2015")
 
 
 ```{r}
-library(tidyr)
-
 sites_bad <- c("US-WPT", "US-ORv", "DE-Akm", "DE-RuS", "IT-Ro1")
 
 df <- df_d8[site %in% sites_bad, .(site, date, NEE, GPP_NT, GPP_DT)]
 
-df_lai <- fread("./temp/st5_fix_LAI_2000-2023_MODIS_061_MOD15A2H.csv") |>
+indir = "data-raw/st212_adjust_5points_loc/LAI_csv_temp"
+f = glue("{indir}/st5_fix_LAI_2000-2023_MODIS_061_MOD15A2H.csv")
+df_lai <- fread(f) |>
   separate(site2, into = c("site", "group"), sep = "_") |>
   data.table() |>
   mutate(date = as_date(date)) %>%
   # add_dn() |>
   # mutate(date2 = date_ydn(year, d8)) %>%
   .[, .(site, group, date, FparExtra_QC, LAI = Lai_500m)]
-# df[LAI == 25]
 
 d = merge(df_lai, df)
 info = d[, GOF(LAI, GPP_NT), .(site, group)]
 info[, .SD[which.max(R2), .(group, R, R2, pvalue)], .(site)]
-
-# pivot_wider(df, names_from = site2, names_sep = "_")
 ```
 
-# 湿地`LAI&NEE`为何是负相关？
+> 湿地`LAI&NEE`为何是负相关？
+`LAI&GPP`是正相关，而且相关系数极高
 
 ```{r}
-# 最终挑选的站点
-
+# 最终挑选的站点, NEE
 merge(df_lai, info) |> select(-group) |> unique()
 
 #   site   group      R    R2   pvalue
@@ -86,3 +84,45 @@ st_flux261[site %in% sites_bad, ]
 usethis::use_data(st_flux261, overwrite=TRUE)
 # 5个站点的位置需要调整
 ```
+
+```{r}
+# 补充冠层高度信息
+sites = st_flux261$site
+
+st = site_metadata[SiteCode %in% sites, .(site = SiteCode, 
+  z_obs = MeasurementHeight, 
+  z_canopy = CanopyHeight,
+  z_tower = TowerHeight,
+  IGBP_vegetation_short, IGBP_vegetation_long, 
+  CABLE_PFT, 
+  Exclude, 
+  Exclude_reason
+)]
+
+st[!is.na(z_obs)]
+st2[!is.na(z_obs)] # 217站点有
+st2[!is.na(z_canopy)] # 217站点有
+
+sites_good = st_plumber170$site
+st2 = rbind(
+  st[site %!in% sites_good, .(site, z_obs, z_canopy)],
+  st_plumber170[, .(site, z_obs, z_canopy)]
+)
+```
+
+```{r}
+meta = fread("data-raw/Site_metadata.csv")
+# st = site_metadata[SiteCode %in% sites, .(site = SiteCode, 
+#   z_obs = MeasurementHeight, 
+#   z_canopy = CanopyHeight,
+#   z_tower = TowerHeight,
+#   IGBP_vegetation_short, IGBP_vegetation_long, 
+#   CABLE_PFT, 
+#   Exclude, 
+#   Exclude_reason
+# )]
+
+# st[!is.na(z_obs)]
+```
+
+> 冠层高度信息不全

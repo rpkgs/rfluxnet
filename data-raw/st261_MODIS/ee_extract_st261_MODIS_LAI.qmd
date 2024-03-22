@@ -1,0 +1,80 @@
+> GEE限制变多: no more than 5000 bands
+
+```{r}
+library(rgee)
+library(rgee2)
+library(rfluxnet)
+library(sf)
+library(sf2)
+
+ee_Initialize(drive = TRUE)
+```
+
+<!-- # -half_win: half_win -->
+
+```{r}
+st <- st_flux261[, .(site, lon, lat)]
+# st = st_plumber170[, .(site, lon, lat)]
+sp <- df2sf(st)
+
+imgcol <- ee$ImageCollection$Dataset$MODIS_061_MOD15A2H
+proj <- ee_get_proj(imgcol)
+scale <- proj$scale # scale should lte prj.scale
+# scale = 463.3127
+
+sp_2 <- st_point_buffer(st, scale = scale, half_win = 1) 
+sp_5 <- st_point_buffer(st, scale = scale, half_win = 2)
+```
+
+> 需要收集逐日的数据
+
+```{r}
+# save(df, file = "data-raw/phenofit_NorthChinaPlain_test-(2015-2021)_3by3.rda")
+
+## ALL the scale is 500m
+## 1. vegetation index
+col <- ee$ImageCollection$Dataset$MODIS_061_MOD15A2H$
+  select(
+  c("Lai_500m", "FparExtra_QC"),
+  c("Lai", "FparExtra_QC")
+) # rename
+ee_extract2(col, sp,
+  via = "drive", lazy = TRUE, prefix = "st261_LAI_2000-2023_"
+)
+
+col <- ee$ImageCollection$Dataset$MODIS_061_MCD15A3H$
+  select(c("Lai", "FparExtra_QC"))
+ee_extract2(col, sp,
+  via = "drive", lazy = TRUE, prefix = "st261_LAI_2000-2023_"
+)
+```
+
+```{r}
+# files <- dir("data-raw/st261/raw", full.names = TRUE)
+files <- dir("temp", full.names = TRUE)
+overwrite <- FALSE
+
+for (infile in files) {
+  print(infile)
+  drive_csv_clean(infile, sp)
+}
+```
+
+## 1. Emiss and Albedo
+
+```{r}
+# Emiss和Albedo数据量太大，单独处理
+col <- ee$ImageCollection("projects/pml_evapotranspiration/PML_INPUTS/MODIS/Albedo_interp_8d_v3_061")
+
+ee_extract2(col, sp,
+  via = "drive", lazy = TRUE,
+  outfile = "st261_Albedo_8D_V061_2000-2023_"
+)
+
+col <- ee$ImageCollection("projects/pml_evapotranspiration/PML_INPUTS/MODIS/Emiss_interp_8d")
+ee_extract2(col, sp,
+  via = "drive", lazy = TRUE,
+  # prefix = "st261_emiss_2000-2023_",
+  outfile = "st261_Emiss_8D_v061_2000-2023.csv"
+)
+```

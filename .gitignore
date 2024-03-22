@@ -10,3 +10,5 @@ OUTPUT/
 *.xlsx
 
 shp
+.vdoc.jl
+*.rda

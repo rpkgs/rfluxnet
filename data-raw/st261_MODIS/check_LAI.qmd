@@ -1,0 +1,48 @@
+```{r}
+library(lubridate)
+
+indir = "./data-raw/st261_MODIS/DATA"
+df = fread(glue("{indir}/st261_LAI_2000-2023_MODIS_061_MOD15A2H.csv"))
+df[Lai > 100, Lai := NA]
+df %<>% mutate(date = as_date(date))
+
+info = df[, .(
+  ymin = min(Lai, na.rm = TRUE),
+  ymax = max(Lai, na.rm = TRUE)
+), .(site)]
+
+sites_bad = df[is.na(Lai), .N, .(site)][N > 10]$site
+# 18个站点，缺失值较长
+```
+
+32: DK-NuF   120
+33: DK-ZaF   361
+34: DK-ZaH   361
+35: FI-Kaa   260
+36: FI-Lom   217
+37: FI-Sod   217
+45: NO-Adv   407
+46: NO-Blv   417
+49: RU-Che   230
+50: RU-Cok   269
+53: RU-Sam   313
+54: RU-Tks   307
+55: RU-Vrk   214
+58: SE-Deg   120
+59: SE-St1   218
+61: US-Atq   268
+63: US-Ivo   217
+65: US-Prr   159
+
+```{r}
+library(ggplot2)
+library(Ipaper)
+
+dat = df[site %in% sites_bad, ]
+p = ggplot(dat, aes(date, Lai)) + 
+  geom_line() + 
+  geom_point() + 
+  facet_wrap(~site, scales = "free_y", ncol = 1)
+
+write_fig(p, 'FigureS1_check_LAI_long_NA.pdf', 10, 25*2)
+```
