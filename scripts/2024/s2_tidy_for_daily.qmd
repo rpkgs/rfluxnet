@@ -56,17 +56,6 @@ fwrite(df_out, fout)
 ## daily to 8-day
 
 ```{r}
-date_yj <- function(year, doy) {
-  make_date(year) + doy - 1
-}
-
-date_ydn <- function(year, dn, delta = 8) {
-  doy = (dn - 1) * delta + 1
-  make_date(year) + doy - 1
-}
-```
-
-```{r}
 df_out %<>% add_dn(days = 8)
 
 vars_comm <- c("site", "date", "YYYY", "year", "month", "doy", "d8")

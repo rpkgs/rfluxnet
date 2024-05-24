@@ -1,25 +1,7 @@
-
 # rfluxnet
 
-<!-- badges: start -->
-<!-- badges: end -->
+- [ ] 合并`FLUXNET2015` (212), `PLUMBER2` (170), `ChinaFlux` (50)
 
-The goal of rfluxnet is to ...
+- [ ] 能量闭合检查
 
-## Installation
-
-You can install the released version of rfluxnet from [CRAN](https://CRAN.R-project.org) with:
-
-``` r
-install.packages("rfluxnet")
-```
-
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-library(rfluxnet)
-## basic example code
-```
-
+- [ ] 净辐射计算方法测试，测试能否移除MODIS的Emiss和Albedo

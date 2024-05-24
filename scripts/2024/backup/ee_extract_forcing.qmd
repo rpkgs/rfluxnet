@@ -1,0 +1,71 @@
+```{r}
+library(rgee2)
+ee_init()
+```
+
+# ERA5-Land
+```{r}
+# Define bands
+bands <- c(
+  Pa = "surface_pressure", # Pa
+  prcp = "total_precipitation_sum", # m
+  Tdew = "dewpoint_temperature_2m",
+  Tmin = "temperature_2m_min",
+  Tmax = "temperature_2m_max",
+  Tavg = "temperature_2m",
+  Tsurf = "skin_temperature",
+  Rns = "surface_net_solar_radiation_sum", # J m-2
+  Rnl = "surface_net_thermal_radiation_sum",
+  Rs = "surface_solar_radiation_downwards_sum",
+  Rln = "surface_thermal_radiation_downwards_sum",
+  uwind = "u_component_of_wind_10m",
+  vwind = "v_component_of_wind_10m",
+  PET = "potential_evaporation_sum", # m
+  ET = "total_evaporation_sum",
+  Ec = "evaporation_from_vegetation_transpiration_sum",
+  Es = "evaporation_from_bare_soil_sum",
+  Ei = "evaporation_from_the_top_of_canopy_sum"
+)
+```
+
+```js
+bands = ["surface_pressure", "total_precipitation_sum", "dewpoint_temperature_2m", "temperature_2m_min", "temperature_2m_max", "temperature_2m", "soil_temperature_level_1", "surface_net_solar_radiation_sum", "surface_net_thermal_radiation_sum", "surface_solar_radiation_downwards_sum", "surface_thermal_radiation_downwards_sum", "u_component_of_wind_10m", "v_component_of_wind_10m", "potential_evaporation_sum", "total_evaporation_sum", "evaporation_from_vegetation_transpiration_sum", "evaporation_from_bare_soil_sum", "evaporation_from_the_top_of_canopy_sum"]
+
+bands_new = ["Pa", "prcp", "Tdew", "Tmin", "Tmax", "Tavg", "Tsoil", "Rns", "Rnl", "Rs", "Rln", "uwind", "vwind", "PET", "ET", "Ec", "Es", "Ei"]
+
+var col = ee.ImageCollection("ECMWF/ERA5_LAND/DAILY_AGGR")
+  .select(bands, bands_new)
+```
+
+```{r}
+```
+
+```{r}
+
+```
+
+
+
+```{r}
+sp = sf2::df2sf(st_flux261) |> _[, 1]
+
+year = 2010
+filter = ee$filter$Filter$calendarRange(2000, 2023, "year")
+col = ee$ImageCollection("ECMWF/ERA5_LAND/DAILY_AGGR")$
+  filter(filter)$
+  select(bands, names(bands))
+# col
+```
+
+```{r}
+ee_extract2(col, sp,
+  via = "drive", lazy = TRUE,
+  outfile = "st261_ERA5L_day_2000-2023_"
+)
+```
+
+## GLDAS-V2.1
+
+```{r}
+
+```

@@ -4,11 +4,14 @@
 > 2024-03-22, Dongdong Kong
 <https://code.earthengine.google.com/d2c78bba5034f692f114ee64b0fb05c7>
 
-
 ```{r}
 library(sf)
 library(sf2)
 library(tidyr)
+library(Ipaper)
+library(dplyr)
+library(lubridate)
+library(hydroTools)
 
 st2 = read_sf("./data-raw/st212_adjust_5points_loc/shp/flux_st5_adjusted.shp") |> 
   st_cast("POINT") |> 
@@ -30,7 +33,7 @@ st2 = merge(info, st2) |> cbind("source"="fluxnet2015")
 
 ```{r}
 sites_bad <- c("US-WPT", "US-ORv", "DE-Akm", "DE-RuS", "IT-Ro1")
-
+df_d8 = fread("Z:/Researches/PMLV2/rfluxnet.R/OUTPUT/fluxsites212_FULLSET_D8_v20240322 (80%).csv")
 df <- df_d8[site %in% sites_bad, .(site, date, NEE, GPP_NT, GPP_DT)]
 
 indir = "data-raw/st212_adjust_5points_loc/LAI_csv_temp"
@@ -45,6 +48,9 @@ df_lai <- fread(f) |>
 
 d = merge(df_lai, df)
 info = d[, GOF(LAI, GPP_NT), .(site, group)]
+info[, .SD[which.max(R2), .(group, R, R2, pvalue)], .(site)]
+
+info <- d[, GOF(LAI, NEE), .(site, group)]
 info[, .SD[which.max(R2), .(group, R, R2, pvalue)], .(site)]
 ```
 
@@ -65,7 +71,6 @@ merge(df_lai, info) |> select(-group) |> unique()
 ```
 
 > 重新制作一个st_flux212
-
 > `st_plumber170`: 可补充49个站点
 
 ```{r}
@@ -74,7 +79,6 @@ st = rbind(
   st_flux212[, .(site, lon, lat, source = "fluxnet2015")]
 )
 # IT-Ro1: both
-
 st_flux261 = rbind(st[site %!in% sites_bad, ], select(st2, -group)) |> 
   arrange(site)
 
@@ -121,8 +125,9 @@ meta = fread("data-raw/Site_metadata.csv")
 #   Exclude, 
 #   Exclude_reason
 # )]
-
 # st[!is.na(z_obs)]
 ```
 
 > 冠层高度信息不全
+
+## 补充中国的站点信息
