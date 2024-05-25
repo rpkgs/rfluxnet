@@ -27,6 +27,8 @@ info = tribble(
   "US-ORv", "1",
   "US-WPT", "2"
 )
+
+# st2用于修正站点位置信息
 st2 = merge(info, st2) |> cbind("source"="fluxnet2015")
 ```
 
@@ -79,7 +81,9 @@ st = rbind(
   st_flux212[, .(site, lon, lat, source = "fluxnet2015")]
 )
 # IT-Ro1: both
-st_flux261 = rbind(st[site %!in% sites_bad, ], select(st2, -group)) |> 
+st_flux261 = rbind(
+    st[site %!in% sites_bad, ], 
+    select(st2, -group)) |> 
   arrange(site)
 
 st[site %in% sites_bad, ]
@@ -88,6 +92,8 @@ st_flux261[site %in% sites_bad, ]
 usethis::use_data(st_flux261, overwrite=TRUE)
 # 5个站点的位置需要调整
 ```
+
+> 已经对站点位置进行了修正, 但修正代码丢失
 
 ```{r}
 # 补充冠层高度信息

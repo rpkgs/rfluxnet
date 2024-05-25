@@ -1,0 +1,187 @@
+> GEE限制变多: no more than 5000 bands
+# 1. 截取数据
+
+```{r}
+library(sf)
+library(rgee)
+library(lubridate)
+
+library(Ipaper)
+library(rfluxnet)
+library(sf2)
+library(rgee2)
+ee_init(drive = TRUE)
+```
+
+```{r}
+# st = st_plumber170[, .(site, lon, lat)]
+st = st_flux311[, .(site, lon, lat)]
+sp <- df2sf(st)
+
+imgcol = ee$ImageCollection$Dataset$MODIS_061_MOD15A2H
+proj = ee_get_proj(imgcol)
+scale = proj$scale # scale should lte prj.scale
+# scale = 463.3127
+sp_3 = st_point_buffer(st, scale = scale, half_win = 1) # -half_win: half_win
+sp_5 = st_point_buffer(st, scale = scale, half_win = 2)
+# 25*311
+# 9*311
+```
+
+```{r}
+name = "LuanCheng"
+
+.sp = subset(sp, site == name)
+.sp3 = subset(sp_3, site == name)
+.sp5 = subset(sp_5, site == name)
+groups_3 = c(7:9, 12:14, 17:19)
+
+st_distance(.sp, .sp3)
+st_distance(.sp, .sp5[groups_3, ])
+```
+
+> 需要收集逐日的数据
+
+## 1.1. LAI数据
+
+```{r}
+col_lai_8d <- ee$ImageCollection$Dataset$MODIS_061_MOD15A2H$
+  select(
+  c("Lai_500m", "FparExtra_QC"),
+  c("Lai", "FparExtra_QC")
+)$map(\(img) img$unmask(255L))
+
+col_lai_4d <- ee$ImageCollection$Dataset$MODIS_061_MCD15A3H$
+  select(c("Lai", "FparExtra_QC"))$
+  map(\(img) img$unmask(255L))
+```
+```{r}
+## ALL the scale is 500m
+## 1. vegetation index
+points = sp
+prefix = "st311_LAI_2000-2023_"
+# points = sp_3
+# prefix = "st311_LAI_2000-2023_win3_"
+
+# 提取LAI数据
+ee_extract2(col_lai_8d, points, via = "drive", lazy = TRUE, prefix = prefix)
+ee_extract2(col_lai_4d, points, via = "drive", lazy = TRUE, prefix = prefix)
+```
+
+### 每个group一个Task
+```{r}
+foreach(i = 1:25, icount()) %do% {
+  points = subset(sp_5, group == i) |> select(-group)
+  prefix = sprintf("st311_LAI_2000-2023_group%02d_", i)
+  
+  print(prefix)
+  ee_extract2(col_lai_8d, points, via = "drive", lazy = TRUE, prefix = prefix)
+}
+
+# all.equal(.sp$site, sp$site)
+```
+
+
+## 1.2. Emiss and Albedo
+
+```{r}
+# Emiss和Albedo数据量太大，单独处理
+extract_EmissAlbedo <- function(sp, subfix="") {
+  col <- ee$ImageCollection("projects/pml_evapotranspiration/PML_INPUTS/MODIS/Albedo_interp_8d_v3_061")$select(0)
+  ee_extract2(col, sp,
+    via = "drive", lazy = TRUE,
+    outfile = glue("st311_Albedo_8D_V061_2000-2023{subfix}.csv")
+  )
+  
+  col = ee$ImageCollection("projects/pml_evapotranspiration/PML_INPUTS/MODIS/Emiss_interp_8d")$select(0)
+  ee_extract2(col, sp,
+    via = "drive", lazy = TRUE,
+    # prefix = "st261_emiss_2000-2023_",
+    outfile = glue("st311_Emiss_8D_v061_2000-2023{subfix}.csv")
+  )
+}
+
+# extract_EmissAlbedo(sp, "")
+extract_EmissAlbedo(sp_3, "_win3")
+```
+
+## 1.3. 植被类型
+
+```{r}
+col <- ee$ImageCollection("MODIS/061/MCD12Q1")$select(0)
+ee_extract2(col,
+  sp_5,
+  via = "drive", lazy = TRUE,
+  prefix = "st311_LC-win5_2000-2023_"
+)
+```
+
+# 2. 清洗数据
+
+```{r}
+tidy_gee <- function(indir, sp) {
+  fs <- dir2(indir, "*.csv")
+  for (infile in fs) {
+    print(infile)
+    drive_csv_clean(infile, sp)
+  }
+}
+
+drive_csv_clean("data-raw/st311_MODIS/raw/st311_LAI_2000-2023_MODIS_061_MOD15A2H.csv", sp)
+drive_csv_clean("data-raw/st311_MODIS/raw/st311_LAI_2000-2023_MODIS_061_MCD15A3H.csv", sp)
+
+drive_csv_clean("data-raw/st311_MODIS/raw/st311_LC-win5_2000-2023_MODIS_061_MCD12Q1.csv", sp_5)
+drive_csv_clean("data-raw/st311_MODIS/raw/st311_LC-win3_2000-2023_MODIS_061_MCD12Q1.csv", sp_3)
+tidy_gee("data-raw/st311_MODIS/raw/", sp)
+# tidy_gee("data-raw/st311_MODIS/raw/win3", sp_3)
+```
+
+# 3. 目视检验
+
+> 含有缺失数据的站点
+```{r}
+df = fread("data-raw/st311_MODIS/data/st311_LAI_2000-2023_MODIS_061_MOD15A2H.csv")
+df[Lai == 255L & FparExtra_QC == 255L, `:=`(Lai = NA_integer_, FparExtra_QC = NA_integer_)]
+# df[Lai > 100, Lai := NA]
+df %<>% mutate(date = as_date(date))
+
+info = df[, .(
+  ymin = min(Lai, na.rm = TRUE),
+  ymax = max(Lai, na.rm = TRUE)
+), .(site)]
+
+sites_bad = df[is.na(Lai), .N, .(site)][N > 10]$site
+# 18个站点，缺失值较长
+```
+
+ 1 Qomolangma  1110 # 全部数据缺失
+ 2 DK-NuF       120
+ 3 DK-ZaF       361
+ 4 DK-ZaH       361
+ 5 FI-Kaa       260
+ 6 FI-Lom       217
+ 7 FI-Sod       217
+ 8 NO-Adv       407
+ 9 NO-Blv       417
+10 RU-Che       230
+11 RU-Cok       269
+12 RU-Sam       313
+13 RU-Tks       307
+14 RU-Vrk       215
+15 SE-Deg       120
+16 SE-St1       218
+17 US-Atq       268
+18 US-Ivo       217
+19 US-Prr       159
+
+```{r}
+library(ggplot2)
+
+dat = df[site %in% sites_bad, ]
+p = ggplot(dat, aes(date, Lai)) + 
+  geom_line() + 
+  geom_point() + 
+  facet_wrap(~site, scales = "free_y", ncol = 1)
+
+write_fig(p, 'd:/Rplot.pdf', 10, 25*2)
+```

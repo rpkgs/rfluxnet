@@ -1,0 +1,32 @@
+```{r}
+#! /usr/bin/Rscript --no-init-file
+# Copyright (c) 2024 Dongdong Kong. All rights reserved.
+library(Ipaper)
+library(rfluxnet)
+library(data.table)
+library(lubridate)
+
+df = read_xlsx("Z:/st261/Flux/ChinaFlux_st54_站点位置.xlsx")
+d = df[, .(ID, site, source, lon, lat, IGBP, name = `标识符`)] |> 
+  mutate(lon = parse_deg(lon), lat = parse_deg(lat))
+d[is.na(source), source := "nesdc"]
+```
+
+## 进行合并
+> 261 + 54站点，
+
+```{r}
+sites_bad = c("CN-Cha", "CN-Dan", "CN-Din", "CN-Qia")
+
+# 需要补充IGBP的信息
+st1 = st_flux261 |> mutate(name = site) %>%
+  merge(st_flux212[, .(site, IGBP)], all.x = TRUE) %>%
+  .[, .(site, name, lon, lat, IGBP, source)] %>%
+  .[site %!in% sites_bad]
+st2 = d[, .(site, name, lon, lat, IGBP, source)]
+
+st_flux311 = rbind(st2, st1) |> unique()
+
+use_data(st_flux311, overwrite = TRUE)
+save(st_flux311, file = "st_flux311.rda")
+```
