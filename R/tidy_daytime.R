@@ -1,3 +1,6 @@
+# ? 夜间的通量数据，能否使用
+# ! 这里把所有的变量都进行了平均，没有区分，没有考虑夜间的测量误差。
+
 #' @note
 #' # 2020-01-04
 #' Note that all variables except dhour, are averaged or sumed (for precipitation)
@@ -87,4 +90,9 @@ tidy_daytime <- function(dt, minValidPerc = 0.8) {
     # print(unique(diff(as.Date(y$date))))
   }
   return(x_daily2)
+}
+
+# umol/m2/s to g/m2/d
+umol_2gC <- function(x) {
+  12 * 86400 / 10^6 # 1.0368
 }

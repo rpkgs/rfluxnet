@@ -1,0 +1,8 @@
+```{r}
+library(usethis)
+
+d = fread("data-raw/Soil/usda_soil_texture.csv")
+BEPS_soiltype = d
+
+use_data(BEPS_soiltype, overwrite=TRUE)
+```

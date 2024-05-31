@@ -1,0 +1,35 @@
+## 土壤数据库
+
+土壤数据库，采用GEE截取
+
+GEE代码见：
+<https://code.earthengine.google.com/90ca0e35421652bfeb25ea0c666b0e24?noload=1>
+
+```{r}
+library(dplyr)
+library(stringr)
+
+read_gee <- function(f) {
+  fread(f) |> select(-`system:index`, -`.geo`) |> 
+    relocate(site)
+}
+
+```
+
+
+```{r}
+CI <- read_gee("data-raw/st311_MODIS/Soil/Raw/flux311_CI.csv") |> rename(CI = first)
+
+fs = dir2("data-raw/st311_MODIS/Soil/Raw", "soil")
+names = basename(fs) |> str_extract("(?<=soil_).*(?=\\.)")
+fs %<>% set_names(names)
+
+lst = map(fs, read_gee)
+d_soil = melt_list(lst, "var") |> 
+  relocate(var, site, b0, b10, b30, b60, b100, b200)
+
+# 单位
+bulk = read_gee(fs[3])
+read_gee(fs[3])
+```
+
