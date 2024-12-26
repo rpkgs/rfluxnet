@@ -1,0 +1,58 @@
+```{r}
+# Copyright (c) 2024 Dongdong Kong. All rights reserved.
+library(Ipaper)
+library(rfluxnet)
+library(data.table)
+library(lubridate)
+library(usethis)
+library(ggplot2)
+
+df = read_xlsx("Z:/st261/Flux/ChinaFlux_st84_站点位置.xlsx")
+d = df[, .(ID, site, source, lon, lat, IGBP, name = `标识符`)] |> 
+  mutate(lon = parse_deg(lon), lat = parse_deg(lat))
+d[is.na(source), source := "nesdc"]
+fwrite(d, "st_flux84.csv", bom = TRUE)
+```
+
+```{r}
+library(sf2)
+df2st(d)
+```
+
+## 进行合并
+> 261 + 54站点
+```{r}
+sites_bad = c("CN-Cha", "CN-Dan", "CN-Din", "CN-Qia")
+
+# 需要补充IGBP的信息
+st1 = st_flux261 |> mutate(name = site) %>%
+  merge(st_flux212[, .(site, IGBP)], all.x = TRUE) %>%
+  .[, .(site, name, lon, lat, IGBP, source)] %>%
+  .[site %!in% sites_bad]
+st2 = d[, .(site, name, lon, lat, IGBP, source)]
+st_flux341 = rbind(st2, st1) |> unique()
+
+use_data(st_flux341, overwrite = TRUE)
+save(st_flux341, file = "st_flux341.rda")
+```
+
+```{r}
+pacman::p_load(
+  sf
+)
+shp = st_read("X:/rpkgs/sf.extract.R/inst/shp/Continents.shp")
+```
+
+```{r}
+p <- ggplot(st_flux341) + 
+  geom_sf(data = shp) + 
+  geom_point(aes(lon, lat)) + 
+  scale_y_continuous(breaks = seq(-60, 90, 30)) + 
+  coord_sf(xlim = c(-180, 180), ylim = c(-60, 90), expand = FALSE) + 
+  labs(x = NULL, y = NULL) + 
+  theme(
+    panel.grid.major = element_line(linewidth = 0.4)
+  )
+
+write_fig(p, 'd:/Rplot.pdf', 10, 5)
+```

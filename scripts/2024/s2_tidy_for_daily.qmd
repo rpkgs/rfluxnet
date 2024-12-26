@@ -15,7 +15,7 @@ d = fread(f) |> mutate(date = date + dhours(8))
 
 > confirmed, all time are `local`
 ```{r, eval=FALSE}
-lst = foreach(f = fs, i = icount()) %do% {
+lst = foreach(f = fs, i = icount(1)) %do% {
   runningId(i)
   d <- fread(f) |> mutate(date = date + dhours(8))
   info <- d[, .(date, Rs)] %>%

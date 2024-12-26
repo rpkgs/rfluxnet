@@ -13,7 +13,6 @@ read_gee <- function(f) {
   fread(f) |> select(-`system:index`, -`.geo`) |> 
     relocate(site)
 }
-
 ```
 
 
@@ -33,3 +32,4 @@ bulk = read_gee(fs[3])
 read_gee(fs[3])
 ```
 
+> field_capacity

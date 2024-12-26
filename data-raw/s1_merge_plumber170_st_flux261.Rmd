@@ -32,7 +32,6 @@ info = tribble(
 st2 = merge(info, st2) |> cbind("source"="fluxnet2015")
 ```
 
-
 ```{r}
 sites_bad <- c("US-WPT", "US-ORv", "DE-Akm", "DE-RuS", "IT-Ro1")
 df_d8 = fread("Z:/Researches/PMLV2/rfluxnet.R/OUTPUT/fluxsites212_FULLSET_D8_v20240322 (80%).csv")
