@@ -17,9 +17,9 @@ read_gee <- function(f) {
 
 
 ```{r}
-CI <- read_gee("data-raw/st311_MODIS/Soil/Raw/flux311_CI.csv") |> rename(CI = first)
+CI <- read_gee("data-raw/st341_MODIS/Soil/Raw/flux341_CI.csv") |> rename(CI = first)
 
-fs = dir2("data-raw/st311_MODIS/Soil/Raw", "soil")
+fs = dir2("data-raw/st341_MODIS/Soil/Raw", "soil")
 names = basename(fs) |> str_extract("(?<=soil_).*(?=\\.)")
 fs %<>% set_names(names)
 
@@ -27,9 +27,16 @@ lst = map(fs, read_gee)
 d_soil = melt_list(lst, "var") |> 
   relocate(var, site, b0, b10, b30, b60, b100, b200)
 
+dat = melt(d_soil, c("var", "site"), variable.name = "depth") %>% 
+  dcast(site + depth ~ var, value.var = "value") %>% 
+  merge(CI, by = "site") %>% 
+  relocate(site, depth, clay, sand, organic, bulk, texture, swc, ph) %>% 
+  mutate(swc = swc / 100, ph = ph/10, bulk = bulk/100)
+
+fwrite(dat, "data-raw/st341_MODIS/st_341_soil.csv")
 # 单位
-bulk = read_gee(fs[3])
-read_gee(fs[3])
+# bulk = read_gee(fs[3]), # kg / m3
+# read_gee(fs[3])
 ```
 
 > field_capacity

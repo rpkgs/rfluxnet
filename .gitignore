@@ -12,3 +12,4 @@ OUTPUT/
 shp
 .vdoc.jl
 *.rda
+*.pdf

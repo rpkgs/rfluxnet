@@ -15,7 +15,7 @@ ee_init(drive = TRUE)
 
 ```{r}
 # st = st_plumber170[, .(site, lon, lat)]
-st = st_flux311[, .(site, lon, lat)]
+st = st_flux341[, .(site, lon, lat)]
 sp <- df2sf(st)
 
 imgcol = ee$ImageCollection$Dataset$MODIS_061_MOD15A2H
@@ -59,7 +59,7 @@ col_lai_4d <- ee$ImageCollection$Dataset$MODIS_061_MCD15A3H$
 ## ALL the scale is 500m
 ## 1. vegetation index
 points = sp
-prefix = "st311_LAI_2000-2023_"
+prefix = "st341_LAI_2000-2023_"
 # points = sp_3
 # prefix = "st311_LAI_2000-2023_win3_"
 
@@ -72,12 +72,10 @@ ee_extract2(col_lai_4d, points, via = "drive", lazy = TRUE, prefix = prefix)
 ```{r}
 foreach(i = 1:25, icount()) %do% {
   points = subset(sp_5, group == i) |> select(-group)
-  prefix = sprintf("st311_LAI_2000-2023_group%02d_", i)
-  
+  prefix = sprintf("st341_LAI_2000-2023_group%02d_", i)
   print(prefix)
   ee_extract2(col_lai_8d, points, via = "drive", lazy = TRUE, prefix = prefix)
 }
-
 # all.equal(.sp$site, sp$site)
 ```
 
@@ -90,14 +88,14 @@ extract_EmissAlbedo <- function(sp, subfix="") {
   col <- ee$ImageCollection("projects/pml_evapotranspiration/PML_INPUTS/MODIS/Albedo_interp_8d_v3_061")$select(0)
   ee_extract2(col, sp,
     via = "drive", lazy = TRUE,
-    outfile = glue("st311_Albedo_8D_V061_2000-2023{subfix}.csv")
+    outfile = glue("st341_Albedo_8D_V061_2000-2023{subfix}.csv")
   )
   
   col = ee$ImageCollection("projects/pml_evapotranspiration/PML_INPUTS/MODIS/Emiss_interp_8d")$select(0)
   ee_extract2(col, sp,
     via = "drive", lazy = TRUE,
     # prefix = "st261_emiss_2000-2023_",
-    outfile = glue("st311_Emiss_8D_v061_2000-2023{subfix}.csv")
+    outfile = glue("st341_Emiss_8D_v061_2000-2023{subfix}.csv")
   )
 }
 
@@ -112,7 +110,7 @@ col <- ee$ImageCollection("MODIS/061/MCD12Q1")$select(0)
 ee_extract2(col,
   sp_5,
   via = "drive", lazy = TRUE,
-  prefix = "st311_LC-win5_2000-2023_"
+  prefix = "st341_LC-win5_2000-2023_"
 )
 ```
 

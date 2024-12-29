@@ -34,12 +34,13 @@ st_flux341 = rbind(st2, st1) |> unique()
 
 use_data(st_flux341, overwrite = TRUE)
 save(st_flux341, file = "st_flux341.rda")
+
+sp = df2sf(st_flux341)
+write_shp(sp, "st_flux341.shp")
 ```
 
 ```{r}
-pacman::p_load(
-  sf
-)
+pacman::p_load(sf)
 shp = st_read("X:/rpkgs/sf.extract.R/inst/shp/Continents.shp")
 ```
 
@@ -50,9 +51,7 @@ p <- ggplot(st_flux341) +
   scale_y_continuous(breaks = seq(-60, 90, 30)) + 
   coord_sf(xlim = c(-180, 180), ylim = c(-60, 90), expand = FALSE) + 
   labs(x = NULL, y = NULL) + 
-  theme(
-    panel.grid.major = element_line(linewidth = 0.4)
-  )
+  theme(panel.grid.major = element_line(linewidth = 0.4))
 
-write_fig(p, 'd:/Rplot.pdf', 10, 5)
+write_fig(p, 'FigureS1_spatial_dist_st341.pdf', 10, 5)
 ```
