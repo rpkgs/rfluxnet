@@ -15,13 +15,13 @@ d = fread(f) |> mutate(date = date + dhours(8))
 
 > confirmed, all time are `local`
 ```{r, eval=FALSE}
-lst = foreach(f = fs, i = icount(1)) %do% {
-  runningId(i)
-  d <- fread(f) |> mutate(date = date + dhours(8))
-  info <- d[, .(date, Rs)] %>%
-    .[, .(Rs = mean(Rs, na.rm = TRUE)), .(hour = hour(date))]
-  info[which.max(Rs), hour]
-}
+# lst = foreach(f = fs, i = icount(10)) %do% {
+#   runningId(i)
+#   d <- fread(f) |> mutate(date = date + dhours(8))
+#   info <- d[, .(date, Rs)] %>%
+#     .[, .(Rs = mean(Rs, na.rm = TRUE)), .(hour = hour(date))]
+#   info[which.max(Rs), hour]
+# }
 ```
 
 ## hourly to daily
@@ -30,9 +30,8 @@ lst = foreach(f = fs, i = icount(1)) %do% {
 minValidPerc = 0.8
 
 outdir = "./OUTPUT/FLUXNET212_day_tier2"
-version = glue("v20240322 ({minValidPerc*100}%)")
 
-lst = foreach(f = fs, i = icount()) %do% {
+lst_day = foreach(f = fs, site = names(fs), i = icount()) %do% {
   runningId(i)
   name = basename(f) %>% gsub("_HH|_HR", "_DD", .)
   fout = glue("{outdir}/{name}")
@@ -44,29 +43,61 @@ lst = foreach(f = fs, i = icount()) %do% {
       mutate(prcp = prcp * 24, VPD = VPD/10, dhour = NIGHT * 24, .after = "NIGHT")
     fwrite(r, fout)
     r
+  } else {
+    r = fread(fout)
   }
+  r$site = site
+  r
 }
+```
 
-df_out = map(lst, \(d) select(d, -starts_with(c("TS_F_", "SWC_F_")))) |> 
-  melt_list("site")
-fout = glue("./OUTPUT/fluxsites212_FULLSET_D1_{version}.csv")
+```{r}
+r <- map(lst_day, names)
+write_json(r, "variinfo_fullset_st212_day.json", pretty = TRUE)
+```
+
+```{r}
+# df_out <- map(lst_day, \(d) select(d, -starts_with(c("TS_F_", "SWC_F_")))) |>
+#   melt_list("site")
+version <- glue("v20260331 ({minValidPerc*100}%)")
+
+df_out <- rbindlist(lst_day, fill = TRUE)
+fout <- glue("./OUTPUT/fluxsites212_FULLSET_D1_{version}.csv")
 fwrite(df_out, fout)
 ```
 
 ## daily to 8-day
 
 ```{r}
+add_dn <- function(d, days = 8) {
+  # if (class(d$date) != "Date") {
+  #   d$date %<>% ymd()
+  # }
+  d %<>% dplyr::mutate(d, year = year(date), doy = yday(date))
+  days <- floor(days)
+  for (i in seq_along(days)) {
+    day <- days[i]
+    eval(parse(text = sprintf(
+      "d$d%d <- ceiling(d$doy/%d)",
+      day, day
+    )))
+  }
+  return(d)
+}
+
 df_out %<>% add_dn(days = 8)
 
 vars_comm <- c("site", "date", "YYYY", "year", "month", "doy", "d8")
 vars_aggr <- colnames(df_out) %>% setdiff(vars_comm)
 
-df_d8 <- df_out[, lapply(.SD, mean, na.rm = F), 
-  .(site, year, d8), .SDcols = vars_aggr] |> 
+df_d8 <- df_out[, lapply(.SD, mean, na.rm = F),
+  .(site, year, d8),
+  .SDcols = vars_aggr
+] |>
   mutate(date = date_ydn(year, d8, 8), .after = "d8") %>%
   select(-year, -d8)
 
-fout = glue("./OUTPUT/fluxsites212_FULLSET_D8_{version}.csv")
+fout <- glue("./OUTPUT/fluxsites212_FULLSET_D8_{version}.csv")
 fwrite(df_d8, fout)
 ```
 

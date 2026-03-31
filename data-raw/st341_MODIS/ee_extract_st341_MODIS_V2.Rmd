@@ -26,6 +26,7 @@ sp_3 = st_point_buffer(st, scale = scale, half_win = 1) # -half_win: half_win
 sp_5 = st_point_buffer(st, scale = scale, half_win = 2)
 # 25*311
 # 9*311
+# MOD09GA
 ```
 
 ```{r}
@@ -45,27 +46,23 @@ st_distance(.sp, .sp5[groups_3, ])
 ## 1.1. LAI数据
 
 ```{r}
-col_lai_8d <- ee$ImageCollection$Dataset$MODIS_061_MOD15A2H$
-  select(
-  c("Lai_500m", "FparExtra_QC"),
-  c("Lai", "FparExtra_QC")
-)$map(\(img) img$unmask(255L))
+bands <- c("sur_refl_b01", "sur_refl_b02", "sur_refl_b03", "sur_refl_b06")
+bands_new <- c("red", "nir", "blue", "SWIR2")
 
-col_lai_4d <- ee$ImageCollection$Dataset$MODIS_061_MCD15A3H$
-  select(c("Lai", "FparExtra_QC"))$
-  map(\(img) img$unmask(255L))
+col <- ee$ImageCollection$Dataset$MODIS_061_MOD09GA$
+  select(bands, bands_new)
+# col_lai_4d <- ee$ImageCollection$Dataset$MODIS_061_MCD15A3H$
+#   select(c("Lai", "FparExtra_QC"))$
+#   map(\(img) img$unmask(255L))
 ```
 ```{r}
 ## ALL the scale is 500m
 ## 1. vegetation index
 points = sp
-prefix = "st341_LAI_2000-2023_"
-# points = sp_3
-# prefix = "st311_LAI_2000-2023_win3_"
+prefix = "st341_MOD09GA_2000-2023_"
 
 # 提取LAI数据
-ee_extract2(col_lai_8d, points, via = "drive", lazy = TRUE, prefix = prefix)
-ee_extract2(col_lai_4d, points, via = "drive", lazy = TRUE, prefix = prefix)
+ee_extract2(col, points, via = "drive", lazy = TRUE, prefix = prefix)
 ```
 
 ### 每个group一个Task
@@ -137,11 +134,6 @@ drive_csv_clean("data-raw/st311_MODIS/raw/st311_win3_Emiss_8D_v061_2000-2023.csv
 # drive_csv_clean("data-raw/st311_MODIS/raw/st311_LC-win3_2000-2023_MODIS_061_MCD12Q1.csv", sp_3)
 tidy_gee("data-raw/st311_MODIS/raw/", sp)
 # tidy_gee("data-raw/st311_MODIS/raw/win3", sp_3)
-```
-
-```{r}
-f = "Z:/Researches/ET_ModelDev/data-raw/MODIS/raw/st341_LC-win5_2000-2023_MODIS_061_MCD12Q1.csv"
-drive_csv_clean(f, sp_5)
 ```
 
 ### clean LAI

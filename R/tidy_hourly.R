@@ -9,11 +9,11 @@ tidy_hourly <- function(dt) {
   # df[, vars_all[Id_na]] <- NA #this step must be data.frame variables
   if (length(Id_na) > 0) dt[, (vars_all[Id_na]) := NA]
 
-  x_val <- dt[, vars_val, with = F]
+  x_val <- dt[, vars_val, with = FALSE]
 
   # qc could be -9999 sometimes
-  x_qc <- dt[, vars_QC, with = F]
-  x_val[x_qc > 2] <- NA
+  x_qc <- dt[, vars_QC, with = FALSE]
+  x_val[x_qc > 2] <- NA # poor设置为NA
 
   # manipulate NA values
   for (i in seq_along(vars_val)) {

@@ -2,16 +2,21 @@
 > Dongdong Kong, CUG, 2024-03-09
 
 ```{r}
-library(Ipaper)
-library(dplyr)
+pacman::p_load(
+  Ipaper, data.table, dplyr, lubridate, jsonlite
+)
 
-fs <- dir("Z:/DATA/FLUXNET/FLUXNET2015_Tier2/", "FULLSET_HH|FULLSET_HR", 
-  recursive = TRUE, full.names = TRUE)
-f = fs[1]
+fs <- dir("Z:/DATA/FLUXNET/FLUXNET2015_Tier2/", "FULLSET_HH|FULLSET_HR",
+  recursive = TRUE, full.names = TRUE
+)
+sites <- str_extract(basename(fs), "(?<=FLX_).*(?=_FLUX)")
+names(fs) <- sites
+
+f <- fs[1]
 ```
 
 ```{r}
-lst = foreach(f = fs, i = icount()) %do% {
+lst_raw = foreach(f = fs, i = icount()) %do% {
   runningId(i)
   fout = basename(f) %>% paste0("./OUTPUT/FLUXNET212_hour_tier2/", "tidied_", .)
 
@@ -23,9 +28,17 @@ lst = foreach(f = fs, i = icount()) %do% {
     }, error = function(e) {
       message('%s', e$message)
     })
+  } else {
+    fread(fout)
   }
 }
 # 8个变量存在`_F_MDS`
+```
+
+```{r}
+names(lst_raw) = sites
+r = map(lst_raw, names)
+write_json(r, "variinfo_fullset_st212.json", pretty=TRUE)
 ```
 
 ## 1.1. 把所有文件的数据合并到一起
@@ -56,9 +69,7 @@ for (i in 1:length(lst)) {
 
 # > 注意，时间被加了8个小时, 需要注意
 df = melt_list(lst, site = sites)
-df2 = df |> mutate(
-  site = gsub("_", "", site), 
-  date = date + dhours(8))
+df2 = df |> mutate(site = gsub("_", "", site), date = date + dhours(8))
 fwrite(df2, "tidied_FLUXNET212_hour_tier2_v20240309.csv")
 tidyfst::export_fst(df, "tidied_FLUXNET212_hour_tier2_v20240309.fst")
 ```

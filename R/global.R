@@ -10,35 +10,35 @@ timename <- c("TIMESTAMP_START", "TIMESTAMP_END")
 # non_QC variables
 # "SW_OUT_QC", "LW_OUT_QC", "NETRAD_QC", "USTAR_QC"
 vars_val <- c(
-  "SW_IN_F", # incoming Shortwave Radiation  | W/m2
-  "SW_OUT", # outgoing Shortwave Radiation  | W/m2
-  "LW_IN_F", # incoming Longwave Radiation   | W/m2
-  "LW_OUT", # outgoing Longwave Radiation   | W/m2
-  "NETRAD", # Rn, NET Radiation             | W/m2
-  "LE_F_MDS", # Latent heat flux              | W/m2
-  "LE_CORR", # LE_F_MDS_QC quality flag for LE_F_MDS, LE_CORR
-  "H_F_MDS", # Sensible heat flux            | W/m2
-  "H_CORR", # corrected H_F_MDS by energy balance closure correction factor, QC as H_F_MDC_QC
-  "G_F_MDS", # Soil heat flux                | W/m2, could be negative
-  "PA_F", # Atmospheric pressure          | kPa
-  "P_F", # Precipitation                 | mm
-  "VPD_F", # Vapor Pressure Deficit        | hPa
-  "WS_F", # Wind Speed                    | m/s
-  "WD", # Wind Direction                | Decimal degrees
-  "USTAR", # Friction velocity             | m/s
-  "RH", # Relative Humidity             | %
-  "PPFD_IN", # incoming Photosynthetic photon flux density | W/m2
-  "CO2_F_MDS", # CO2 mole fraction             | umol CO2/mol
-  "TA_F", # air temperature               | degC
-  "TS_F_MDS_1", # Soil temperature, '#' increases with the depth, 1 is shallowest | degC
-  "SWC_F_MDS_1", # Soil water content            | %
-  "NEE_VUT_REF", # Net Ecosystem Exchange, using Variable Ustar Threshold (VUT) | umol CO2/mol
-  # for each year, reference selected on the basis of the model
-  # efficiency (MEF). The MEF analysis is repeated for each time aggregation
-  "RECO_DT_VUT_REF", # daytime partitioning Ecosystem Respiration          | umol CO2/mol
-  "RECO_NT_VUT_REF", # nighttime partitioning Ecosystem Respiration        | umol CO2/mol
-  "GPP_DT_VUT_REF", # daytime partitioning Gross Primary Production,      | umol CO2/mol
-  "GPP_NT_VUT_REF" # nighttime partitioning Gross Primary Production,    | umol CO2/mol
+  "SW_IN_F",         # incoming Shortwave Radiation                                 | W/m2
+  "SW_OUT",          # outgoing Shortwave Radiation                                 | W/m2
+  "LW_IN_F",         # incoming Longwave Radiation                                  | W/m2
+  "LW_OUT",          # outgoing Longwave Radiation                                  | W/m2
+  "NETRAD",          # Rn, NET Radiation                                            | W/m2
+  "LE_F_MDS",        # Latent heat flux                                             | W/m2
+  "LE_CORR",         # LE_F_MDS_QC quality flag for LE_F_MDS, LE_CORR
+  "H_F_MDS",         # Sensible heat flux                                           | W/m2
+  "H_CORR",          # corrected H_F_MDS by energy balance closure correction factor, QC as H_F_MDC_QC
+  "G_F_MDS",         # Soil heat flux                                               | W/m2, could be negative
+  "PA_F",            # Atmospheric pressure                                         | kPa
+  "P_F",             # Precipitation                                                | mm
+  "VPD_F",           # Vapor Pressure Deficit                                       | hPa
+  "WS_F",            # Wind Speed                                                   | m/s
+  "WD",              # Wind Direction                                               | Decimal degrees
+  "USTAR",           # Friction velocity                                            | m/s
+  "RH",              # Relative Humidity                                            | %
+  "PPFD_IN",         # incoming Photosynthetic photon flux density                  | W/m2
+  "CO2_F_MDS",       # CO2 mole fraction                                            | umol CO2/mol
+  "TA_F",            # air temperature                                              | degC
+  "TS_F_MDS_1",      # Soil temperature, '                                          # ' increases with the depth, 1 is shallowest | degC
+  "SWC_F_MDS_1",     # Soil water content                                           | %
+  "NEE_VUT_REF",     # Net Ecosystem Exchange, using Variable Ustar Threshold (VUT) | umol CO2/mol
+                     # for each year, reference selected on the basis of the model
+                     # efficiency (MEF). The MEF analysis is repeated for each time aggregation
+  "RECO_DT_VUT_REF", # daytime partitioning Ecosystem Respiration                   | umol CO2/mol
+  "RECO_NT_VUT_REF", # nighttime partitioning Ecosystem Respiration                 | umol CO2/mol
+  "GPP_DT_VUT_REF",  # daytime partitioning Gross Primary Production,               | umol CO2/mol
+  "GPP_NT_VUT_REF"   # nighttime partitioning Gross Primary Production,             | umol CO2/mol
 )
 
 ################################################################################

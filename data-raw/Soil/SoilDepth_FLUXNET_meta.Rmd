@@ -1,0 +1,143 @@
+```{r}
+pacman::p_load(
+  Ipaper, data.table, dplyr, lubridate, 
+  stringr
+)
+
+extract_data <- function(x) {
+  n <- length(x)
+  date <- x[seq(1, n, 3)]
+  variable <- x[seq(2, n, 3)]
+  value <- x[seq(3, n, 3)]
+  data.table(date, variable, value)
+}
+
+rename_var <- function(name, value) {
+  key <- str_extract(name, ".*(?=\\d)")
+  value <- sprintf("%.0fcm", -value * 100)
+  paste0(key, value)
+}
+```
+
+```{r}
+df = read_excel("data-raw/Soil/FLX_AA-Flx_BIF_DD_20200501.xlsx") %>% 
+  cbind(I = 1:nrow(.), .)
+```
+
+```{r}
+inds = df[grepl("TS_F|SWC_F", DATAVALUE), ] %>% 
+  .[!grepl("_QC", DATAVALUE), I]
+inds = c(inds-1, inds, inds + 1) %>% unique_sort() 
+
+dat = df[inds, ]
+sites = unique_sort(dat$SITE_ID)
+# dat[SITE_ID %in% sites[27]]
+
+info = dt_dlply(dat[SITE_ID %in% sites], 
+  .(SITE_ID), \(d) extract_data(d$DATAVALUE)) %>% 
+  melt_list("site")
+info$value %<>% as.numeric()
+info %<>% mutate(var = rename_var(variable, value))
+
+fwrite(info, "data/Depth_TS&SM_FLUXNET2015.csv")
+```
+
+```{r}
+.info_TS = info[grepl("TS_F", variable)]
+.info_SM = info[grepl("SWC_F", variable)]
+
+fwrite(.info_TS, "data/Depth_TS_FLUXNET2015.csv")
+fwrite(.info_SM, "data/Depth_SM_FLUXNET2015.csv")
+```
+
+
+## 土壤温度
+
+```{r}
+# 71个站点
+sites_TS = info[grep("TS_F", variable)] %>% 
+  .[, .N, site] %>% 
+  .[N >= 2, site]
+info_TS = info[site %in% sites_TS & grepl("TS_F", variable)]
+r = info_TS %>% dcast(site + date ~ variable, value.var = "value")
+r[r == 0] = NA
+write_list2xlsx(r, "info_TS_st71.xlsx")
+
+fwrite(info_TS, "data/Depth_TS_FLUXNET2015_Multi.csv")
+```
+
+## 土壤湿度
+
+```{r}
+# 50个站点
+sites_SM = info[grep("SWC_F", variable)] %>% 
+  .[, .N, site] %>% 
+  .[N >= 2, site]
+info_SM = info[site %in% sites_SM & grepl("SWC_F", variable)]
+
+r = info_SM %>% dcast(site + date ~ variable, value.var = "value") 
+r[r == 0] = NA
+write_list2xlsx(r, "info_SM_st50.xlsx")
+fwrite(info_SM, "data/Depth_SM_FLUXNET2015_Multi.csv")
+```
+
+## 核对变量
+
+```{r}
+info_TS[, .N, .(site, variable)][N > 1]
+```
+<!-- A data frame: 27 × 3
+   site   variable       N
+   <fct>  <chr>      <int>
+ 1 BE-Lon TS_F_MDS_1     2
+ 2 BE-Lon TS_F_MDS_2     2
+ 3 BE-Lon TS_F_MDS_3     2
+ 4 BE-Lon TS_F_MDS_4     2
+ 5 BE-Lon TS_F_MDS_5     2
+ 6 BE-Vie TS_F_MDS_1     3
+ 7 BE-Vie TS_F_MDS_2     3
+ 8 BE-Vie TS_F_MDS_3     3
+ 9 BE-Vie TS_F_MDS_4     2
+10 BE-Vie TS_F_MDS_5     2
+11 DE-Geb TS_F_MDS_2     2
+12 DE-Geb TS_F_MDS_3     2
+13 FR-Gri TS_F_MDS_2     2
+14 FR-Gri TS_F_MDS_3     2
+15 FR-Gri TS_F_MDS_4     2
+16 FR-Gri TS_F_MDS_5     2
+17 FR-Gri TS_F_MDS_6     2
+18 FR-Gri TS_F_MDS_7     2
+19 FR-Gri TS_F_MDS_8     2
+20 GL-ZaF TS_F_MDS_2     2
+21 IT-BCi TS_F_MDS_1     8
+22 IT-BCi TS_F_MDS_2     5
+23 IT-CA1 TS_F_MDS_3     2
+24 IT-Ren TS_F_MDS_3     2
+25 NL-Loo TS_F_MDS_1     2
+26 NL-Loo TS_F_MDS_2     2
+27 NL-Loo TS_F_MDS_3     2 -->
+
+```{r}
+info_SM[, .N, .(site, variable)][N > 1]
+```
+ <!-- 1 BE-Lon SWC_F_MDS_2     2
+ 2 BE-Lon SWC_F_MDS_3     2
+ 3 BE-Vie SWC_F_MDS_1     2
+ 4 BE-Vie SWC_F_MDS_2     2
+ 5 BE-Vie SWC_F_MDS_3     2
+ 6 DK-Sor SWC_F_MDS_2     2
+ 7 FR-Gri SWC_F_MDS_2     2
+ 8 FR-Gri SWC_F_MDS_3     2
+ 9 FR-Gri SWC_F_MDS_4     2
+10 FR-Gri SWC_F_MDS_5     2
+11 FR-Gri SWC_F_MDS_6     2
+12 FR-Gri SWC_F_MDS_7     2
+13 IT-BCi SWC_F_MDS_1     2
+14 IT-BCi SWC_F_MDS_2     2
+15 IT-CA1 SWC_F_MDS_3     2
+16 IT-CA2 SWC_F_MDS_1     2
+17 IT-CA3 SWC_F_MDS_1     2
+18 IT-SRo SWC_F_MDS_2     2
+19 NL-Loo SWC_F_MDS_1     2
+20 NL-Loo SWC_F_MDS_2     2
+21 NL-Loo SWC_F_MDS_3     2 -->
