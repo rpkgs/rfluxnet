@@ -38,7 +38,7 @@ lst_raw = foreach(f = fs, i = icount()) %do% {
 ```{r}
 names(lst_raw) = sites
 r = map(lst_raw, names)
-write_json(r, "variinfo_fullset_st212.json", pretty=TRUE)
+write_json(r, "varInfo_fullset_st212.json", pretty=TRUE)
 ```
 
 ## 1.1. 把所有文件的数据合并到一起

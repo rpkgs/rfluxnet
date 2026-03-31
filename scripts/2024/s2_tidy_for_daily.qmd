@@ -53,7 +53,7 @@ lst_day = foreach(f = fs, site = names(fs), i = icount()) %do% {
 
 ```{r}
 r <- map(lst_day, names)
-write_json(r, "variinfo_fullset_st212_day.json", pretty = TRUE)
+write_json(r, "varInfo_fullset_st212_day.json", pretty = TRUE)
 ```
 
 ```{r}
